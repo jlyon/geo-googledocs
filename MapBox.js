@@ -3,8 +3,24 @@ var ss = SpreadsheetApp.getActiveSpreadsheet(),
     sheet = ss.getActiveSheet(),
     activeRange = ss.getActiveRange(),
     settings = {};
-    
+
 var geocoders = {
+    google: {
+      query: function(query, key) {
+        return 'http://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=' + query;
+      },
+      parse: function(r) {
+        try {
+          return {
+            longitude: r.results[0].geometry.location.lng,
+            latitude: r.results[0].geometry.location.lat,
+            accuracy: r.results[0].types[0]
+          }
+        } catch(e) {
+          return { longitude: '', latitude: '', accuracy: '' };
+        }
+      }
+    }, 
     yahoo: {
       query: function(query, key) {
         return 'http://where.yahooapis.com/geocode?appid=' +
@@ -213,6 +229,7 @@ function gcDialog() {
   grid.setWidget(0, 1, app.createListBox()
     .setName('apiBox')
     .setId('apiBox')
+    .addItem('google')
     .addItem('mapquest')
     .addItem('yahoo'));
   grid.setWidget(1, 0, app.createLabel('API key:'));
@@ -388,7 +405,9 @@ function closeUiGc() {
 function getApiResponse(address, api, key) {
   var geocoder = geocoders[api],
       url = geocoder.query(encodeURI((address), key));
-  
+  Logger.log(url);
+  Logger.log(address);
+  Logger.log(api);
   // If the geocoder returns a response, parse it and return components
   // If the geocoder responds poorly or doesn't response, try again
   for (var i = 0; i < 5; i++) {
