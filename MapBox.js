@@ -405,9 +405,7 @@ function closeUiGc() {
 function getApiResponse(address, api, key) {
   var geocoder = geocoders[api],
       url = geocoder.query(encodeURI((address), key));
-  Logger.log(url);
-  Logger.log(address);
-  Logger.log(api);
+
   // If the geocoder returns a response, parse it and return components
   // If the geocoder responds poorly or doesn't response, try again
   for (var i = 0; i < 5; i++) {
